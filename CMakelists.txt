@@ -1,0 +1,9 @@
+set(COMPONENT_SRCDIRS "."
+"deps/dht"
+)
+
+set(COMPONENT_ADD_INCLUDEDIRS "." 
+"deps/dht"
+)
+
+register_component()
