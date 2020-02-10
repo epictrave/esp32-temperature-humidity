@@ -19,6 +19,7 @@ void temp_humid_make_message(float temperature, float humidity) {
   JSON_Value *root_value = json_value_init_object();
   JSON_Object *root_object = json_value_get_object(root_value);
 
+  json_object_set_string(root_object, "messageType", "temperatureHumidity");
   json_object_set_string(root_object, "partitionKey", partition_key);
   json_object_set_string(root_object, "rowKey", format_time);
   json_object_set_number(root_object, "temperature", temperature);
