@@ -8,8 +8,9 @@
 #include "device_twin_state.h"
 #include "dht.h"
 #include "parson.h"
+#include "queue_message.h"
 
-char* temp_humid_make_message(float temperature, float humidity);
-void temp_humid_parse_from_json(const char* json,
+void temp_humid_make_message(float temperature, float humidity);
+void temp_humid_parse_from_json(const char *json,
                                 DEVICE_TWIN_STATE update_state);
 #endif /* TEMP_HUMID_H */
