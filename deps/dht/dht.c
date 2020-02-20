@@ -54,28 +54,19 @@
 
 static const char *TAG = "DHTxx";
 
-#if defined(CONFIG_IDF_TARGET_ESP32) || defined(PROJECT_CONFIG_IDF_TARGET_ESP32)
-static portMUX_TYPE mux = portMUX_INITIALIZER_UNLOCKED;
-#define PORT_ENTER_CRITICAL portENTER_CRITICAL(&mux)
-#define PORT_EXIT_CRITICAL portEXIT_CRITICAL(&mux)
-
-#elif defined(CONFIG_IDF_TARGET_ESP8266)
-#define PORT_ENTER_CRITICAL portENTER_CRITICAL()
-#define PORT_EXIT_CRITICAL portEXIT_CRITICAL()
-#endif
-
-#define CHECK_ARG(VAL)                      \
-  do {                                      \
-    if (!(VAL)) return ESP_ERR_INVALID_ARG; \
+#define CHECK_ARG(VAL)                                                         \
+  do {                                                                         \
+    if (!(VAL))                                                                \
+      return ESP_ERR_INVALID_ARG;                                              \
   } while (0)
 
-#define CHECK_LOGE(x, msg, ...)          \
-  do {                                   \
-    esp_err_t __;                        \
-    if ((__ = x) != ESP_OK) {            \
-      ESP_LOGE(TAG, msg, ##__VA_ARGS__); \
-      return __;                         \
-    }                                    \
+#define CHECK_LOGE(x, msg, ...)                                                \
+  do {                                                                         \
+    esp_err_t __;                                                              \
+    if ((__ = x) != ESP_OK) {                                                  \
+      ESP_LOGE(TAG, msg, ##__VA_ARGS__);                                       \
+      return __;                                                               \
+    }                                                                          \
   } while (0)
 
 /**
@@ -96,7 +87,8 @@ static esp_err_t dht_await_pin_state(gpio_num_t pin, uint32_t timeout,
     // need to wait at least a single interval to prevent reading a jitter
     ets_delay_us(DHT_TIMER_INTERVAL);
     if (gpio_get_level(pin) == expected_pin_state) {
-      if (duration) *duration = i;
+      if (duration)
+        *duration = i;
       return ESP_OK;
     }
   }
@@ -140,7 +132,8 @@ static inline esp_err_t dht_fetch_data(dht_sensor_type_t sensor_type,
 
     uint8_t b = i / 8;
     uint8_t m = i % 8;
-    if (!m) data[b] = 0;
+    if (!m)
+      data[b] = 0;
 
     data[b] |= (high_duration > low_duration) << (7 - m);
   }
@@ -161,7 +154,8 @@ static inline int16_t dht_convert_data(dht_sensor_type_t sensor_type,
     data = msb & 0x7F;
     data <<= 8;
     data |= lsb;
-    if (msb & BIT(7)) data = -data;  // convert it to negative
+    if (msb & BIT(7))
+      data = -data; // convert it to negative
   }
 
   return data;
@@ -176,16 +170,15 @@ esp_err_t dht_read_data(dht_sensor_type_t sensor_type, gpio_num_t pin,
   gpio_set_direction(pin, GPIO_MODE_OUTPUT_OD);
   gpio_set_level(pin, 1);
 
-  PORT_ENTER_CRITICAL;
   esp_err_t result = dht_fetch_data(sensor_type, pin, data);
-  PORT_EXIT_CRITICAL;
 
   /* restore GPIO direction because, after calling dht_fetch_data(), the
    * GPIO direction mode changes */
   gpio_set_direction(pin, GPIO_MODE_OUTPUT_OD);
   gpio_set_level(pin, 1);
 
-  if (result != ESP_OK) return result;
+  if (result != ESP_OK)
+    return result;
 
   if (data[4] != ((data[0] + data[1] + data[2] + data[3]) & 0xFF)) {
     ESP_LOGE(TAG, "Checksum failed, invalid data received from sensor");
@@ -207,7 +200,8 @@ esp_err_t dht_read_float_data(dht_sensor_type_t sensor_type, gpio_num_t pin,
   int16_t i_humidity, i_temp;
 
   esp_err_t res = dht_read_data(sensor_type, pin, &i_humidity, &i_temp);
-  if (res != ESP_OK) return res;
+  if (res != ESP_OK)
+    return res;
 
   *humidity = i_humidity / 10.0;
   *temperature = i_temp / 10.0;
